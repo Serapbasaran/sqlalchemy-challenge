@@ -41,27 +41,33 @@ app = Flask(__name__)
 @app.route("/")
 def welcome():
         return """<html>
-<h1>Hawaii Climate App (Flask API)</h1>
-<img src="https://i.ytimg.com/vi/3ZiMvhIO-d4/maxresdefault.jpg" alt="Hawaii Weather"/>
-<p>Precipitation Analysis:</p>
+    <h1>Hawaii Wheater App </h1>
+<img src="https://s3-us-east-2.amazonaws.com/orbitz-media/blog/wp-content/uploads/2014/07/16152729/coconutPIXLR.jpg" >
+
+<p> List of precipitation data for the last year of dataset</p>
+
 <ul>
   <li><a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a></li>
 </ul>
-<p>Station Analysis:</p>
+
+<p>List of the stations in the dataset</p>
+
 <ul>
   <li><a href="/api/v1.0/stations">/api/v1.0/stations</a></li>
 </ul>
-<p>Temperature Analysis:</p>
+
+<p>The dates and temperature observations of the most active station for the last year of data</p>
+
 <ul>
   <li><a href="/api/v1.0/tobs">/api/v1.0/tobs</a></li>
 </ul>
-<p>Start Day Analysis:</p>
+<p>List of the minimum temperature, the average temperature, and the max temperature for the days greater and equal to start day</p>
 <ul>
-  <li><a href="/api/v1.0/2017-03-14">/api/v1.0/2017-03-14</a></li>
+  <li><a href="/api/v1.0/start">/api/v1.0/start</a></li>
 </ul>
-<p>Start & End Day Analysis:</p>
+<p>List of the minimum temperature, the average temperature, and the max temperature for between start and end day</p>
 <ul>
-  <li><a href="/api/v1.0/2017-03-14/2017-03-28">/api/v1.0/2017-03-14/2017-03-28</a></li>
+  <li><a href="/api/v1.0/start-end">/api/v1.0/start-end</a></li>
 </ul>
 </html>
 """
@@ -86,6 +92,56 @@ def precipitation():
     # Return JSON files to Dictionary
      return jsonify(precipitation_dict)
         
+@app.route("/api/v1.0/stations")
+def stations():
+    #design a query to get the list of the stations in database
+    stations= session.query(Station.station, Station.name).all()
+    # Convert List of Tuples Into Normal List
+    station_list = dict(stations)
+    # Return JSON List of Stations from the Dataset
+    return jsonify(station_list)
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    #Query the dates temperature observations of the most active station for the last year of data
+    date_oneyear_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
+    
+    observation_data = session.query(Measurement.date, Measurement.tobs).\
+    filter(Measurement.date >= date_oneyear_ago).\
+    filter(Measurement.station == "USC00519281").\
+    order_by(Measurement.date).all()
+    
+    # Convert list of tuples into normal list
+    observation = dict(observation_data)
+        
+    # Return JSON files to Dictionary
+    return jsonify(observation)
+
+@app.route("/api/v1.0/start")
+def start():
+    #When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date
+    date = "2017-05-14"      
+    data = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+    filter(Measurement.date >= date).\
+    group_by(Measurement.date).all()
+    temp_list = list(data)
+        
+    # Return JSON files to Dictionary
+    return jsonify(temp_list)
+
+@app.route("/api/v1.0/start-end")
+def start_end():
+    #When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date
+    start_date = "2017-05-14"     
+    end_date = "2017-05-28"
+    data = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+    filter(Measurement.date >= start_date).\
+    filter(Measurement.date<= end_date).\
+    group_by(Measurement.date).all()
+    temp_list = list(data)
+        
+    # Return JSON files to Dictionary
+    return jsonify(temp_list)
 
 
 if __name__ == '__main__':
