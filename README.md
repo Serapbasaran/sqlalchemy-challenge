@@ -28,7 +28,7 @@ Climate Analysis and Data Exploration
   - Query for the calculate the daily normals. Normals are the averages for the min, avg, and max temperatures
   - An area plot to visualize daily normals
   
-Climate App (Flaask API)
+Climate App (Flask API)
  - List of all routes
  - JSON presentation of precipitation data for each date in dataset
  - JSON list of stations from the dataset
