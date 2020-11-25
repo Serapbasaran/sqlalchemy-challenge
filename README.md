@@ -23,12 +23,12 @@ Climate Analysis and Data Exploration
   -The minimum, average, maximum temperatures for the given range of the dates 
   - A bar chart to display results of the previous query
   
- * Daily Rainfall Average
+* Daily Rainfall Average
   - The rainfall per weather station using the previous year's matching dates
   - Query for the calculate the daily normals. Normals are the averages for the min, avg, and max temperatures
   - An area plot to visualize daily normals
   
- Climate App (Flaask API)
+Climate App (Flaask API)
  - List of all routes
  - JSON presentation of precipitation data for each date in dataset
  - JSON list of stations from the dataset
